@@ -262,16 +262,19 @@ var tip = d3.tip()
 
 svg.call(tip);
 
-svg.selectAll('image').on ('click', function (d){
-    clicked = true
-     console.log('what')
-     console.log(clicked)
-     console.log(images)
-   })
+// svg.selectAll('image').on ('click', function (d){
+//     clicked = true
+//      console.log('what')
+//      console.log(clicked)
+//      console.log(images)
+//    })
 
 // svg.on( 'click', function (d) {
 // var images = d3.selectAll('image')
-//     if (d === images){
+    
+
+//     if (d == 3){
+//       d3.select(this)
 //   console.log('spam')
 //  clicked = false
 //  console.log(clicked)
@@ -418,35 +421,33 @@ function imgNode(nombre) {
       .attr('width', d => { return d.radio*2 })
       .attr('height', d => { return d.radio*2 })
 
-          .on( 'mouseover', function (d) {
+//           .on( 'mouseover', function (d) {
 
-            d.radio = 30
-            simulation.nodes(datos).alphaTarget(0.08).restart()
-            // select element in current context
-              d3.select(this)
+//             d.radio = 30
+//             simulation.nodes(datos).alphaTarget(0.08).restart()
+//             // select element in current context
+//               d3.select(this)
              
 
-              .transition(t)
-              // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
-              .attr("x", function(d) { return -60;})
-              .attr("y", function(d) { return -60;})
-              .attr("height", 100)
-              .attr("width", 100);
-              clicked = false
+//               .transition(t)
+//               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
+//               .attr("x", function(d) { return -60;})
+//               .attr("y", function(d) { return -60;})
+//               .attr("height", 100)
+//               .attr("width", 100);
+//               clicked = false
 
-})
+// })
 
 .on( 'click', function (d) {
             // d.radio = 30
 
-            var nodosIguales = datos.filter(dd => {
-              return d.nombre == dd.nombre
-            })
+var nodosIguales = datos.filter(dd => { return d.nombre == dd.nombre})
+
+if (clicked === false){
 
             nodosIguales.forEach(dd => {
               dd.radio = 30
-
-
                   
             })
 
@@ -462,33 +463,55 @@ function imgNode(nombre) {
               .attr("height", 100)
               .attr("width", 100);
             // set click as true
-            clicked = true
-            console.log(clicked)
-             console.log('#' + d.nombre[0])
-        
-})
+            clicked = true}
 
-          // set back
-          .on( 'mouseleave', function(d) {
-
-if (clicked === false){
-            d.radio = radio
+else{
+            nodosIguales.forEach(dd => {
+              dd.radio = radio
+                  
+            })
+           
             simulation.nodes(datos).alphaTarget(0.1).restart()
-            d3.select( this )
+            d3.selectAll('#' + d.nombre)
               .transition()
       .attr('x', d => { return -d.radio })
       .attr('y', d => { return -d.radio })
       .attr('width', d => { return d.radio*2 })
       .attr('height', d => { return d.radio*2 })
+       // set click as false
+            clicked = false
+}
+           
+            
+        
+})
+
+
+
+
+
+
+//           // set back
+//           .on( 'mouseleave', function(d) {
+
+// if (clicked === false){
+//             d.radio = radio
+//             simulation.nodes(datos).alphaTarget(0.1).restart()
+//             d3.select( this )
+//               .transition()
+//       .attr('x', d => { return -d.radio })
+//       .attr('y', d => { return -d.radio })
+//       .attr('width', d => { return d.radio*2 })
+//       .attr('height', d => { return d.radio*2 })
       
-          } 
-  else{
+//           } 
+//   else{
  
 
-  }
+//   }
 
 
-          });
+//           });
 
 
 
