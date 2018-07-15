@@ -421,23 +421,27 @@ function imgNode(nombre) {
       .attr('width', d => { return d.radio*2 })
       .attr('height', d => { return d.radio*2 })
 
-//           .on( 'mouseover', function (d) {
-
-//             d.radio = 30
-//             simulation.nodes(datos).alphaTarget(0.08).restart()
-//             // select element in current context
-//               d3.select(this)
+          .on( 'mouseover', function (d) {
+if (clicked === false){
+            d.radio = 20
+            simulation.nodes(datos).alphaTarget(0.08).restart()
+            // select element in current context
+              d3.select(this)
              
 
-//               .transition(t)
-//               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
-//               .attr("x", function(d) { return -60;})
-//               .attr("y", function(d) { return -60;})
-//               .attr("height", 100)
-//               .attr("width", 100);
-//               clicked = false
+              .transition(t)
+              // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
+              .attr("x", function(d) { return -30;})
+              .attr("y", function(d) { return -30;})
+              .attr("height", 50)
+              .attr("width", 50);
+              }
+else{
 
-// })
+  
+}
+
+})
 
 .on( 'click', function (d) {
             // d.radio = 30
@@ -458,10 +462,10 @@ if (clicked === false){
             d3.selectAll('#' + d.nombre)
               .transition(t)
               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
-              .attr("x", function(d) { return -60;})
-              .attr("y", function(d) { return -60;})
-              .attr("height", 100)
-              .attr("width", 100);
+              .attr("x", function(d) { return -30;})
+              .attr("y", function(d) { return -30;})
+              .attr("height", 75)
+              .attr("width", 75);
             // set click as true
             clicked = true}
 
@@ -491,27 +495,27 @@ else{
 
 
 
-//           // set back
-//           .on( 'mouseleave', function(d) {
+          // set back
+          .on( 'mouseleave', function(d) {
 
-// if (clicked === false){
-//             d.radio = radio
-//             simulation.nodes(datos).alphaTarget(0.1).restart()
-//             d3.select( this )
-//               .transition()
-//       .attr('x', d => { return -d.radio })
-//       .attr('y', d => { return -d.radio })
-//       .attr('width', d => { return d.radio*2 })
-//       .attr('height', d => { return d.radio*2 })
+if (clicked === false){
+            d.radio = radio
+            simulation.nodes(datos).alphaTarget(0.1).restart()
+            d3.select( this )
+              .transition()
+      .attr('x', d => { return -d.radio })
+      .attr('y', d => { return -d.radio })
+      .attr('width', d => { return d.radio*2 })
+      .attr('height', d => { return d.radio*2 })
       
-//           } 
-//   else{
+          } 
+  else{
  
 
-//   }
+  }
 
 
-//           });
+          });
 
 
 
