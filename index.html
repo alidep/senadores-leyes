@@ -4,14 +4,20 @@
 <style>
   
 
-  
-  
 body{
   background-color: #292935;
 }
 .axis {
   font: 12px sans-serif;
 }
+
+.map {
+    fill: #eee;
+    stroke: #fff;
+    stroke-width: 2;
+    /*opacity: .25;*/
+}
+
 
 text {
   fill: white;
@@ -39,38 +45,7 @@ p{
 
 }
 
-/*.pregunta {
-  color: white;
-  font-size: 16px;
-  text-align: center;
-  font-family: 'CubanoRegular';
-  text-align: center;
-
-
-
-}
-
-#myList{
-  
-  height: 30px;
- font-family: 'Chivo', sans-serif;
-  font-size: 13px;
- border-radius: 0px;
-  margin: 5px;
-  border-radius: 0px;
-  
-}*/
-
-/*.questioncontainer
-{
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  margin-bottom: 30px;
-  text-align: center;
-}*/
-
-.d3-tip {
+/*.d3-tip {
   line-height: 1;
   font-weight: bold;
   padding: 12px;
@@ -80,7 +55,7 @@ p{
 }
 
 /* Creates a small triangle extender for the tooltip */
-.d3-tip:after {
+/*.d3-tip:after {
   box-sizing: border-box;
   display: inline;
   font-size: 10px;
@@ -90,7 +65,7 @@ p{
   content: "\25BC";
   position: absolute;
   text-align: center;
-}
+}*/
 
 #comparacion
 {
@@ -99,35 +74,21 @@ p{
   float: left;
 }
 
-
 @media (min-width: 768px) {
   text {
     font-size: 20px;
   }
 }
 
-/*.long-text {
-  color: white;
-  text-align: center;
-  font-family: Chivo-Regular;
-}
-*/
-
 
 #comparacion
 {
+width: 1200px;
+margin: auto;
 
-  
-  width: 1200px;
-  margin: auto;
-  
-/*background: linear-gradient(to right, #000 20%, rgba(0, 0, 0, 0) 20%), linear-gradient(to right, #dd0000 40%, #ffc608 40%), linear-gradient(to right, #000 80%, rgba(0, 0, 0, 0) 80%);*/
-
-
-background:linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%);
-
-
+/*background:linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%);*/
 }
+
 div.graph-text {
   position: absolute;
   text-align: center;
@@ -147,154 +108,233 @@ g > circle {
 }
 
 
-
-image{
-  border-radius: 50%;
-
-}
-
 </style>
-  <link href="https://fonts.googleapis.com/css?family=Chivo" rel="stylesheet">
+
 <link href="https://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Hind:400,700" rel="stylesheet">
 
   <script src='https://d3js.org/d3.v5.min.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
 
-  <script src="data2.js"></script>
+
 
 </head>
 <body>
   <div id="thing">
-  <h2>Como votaron los senadores </h2>
+<!--   <h2>Como votaron los senadores </h2> -->
 </br>
 </br>
-<!--    <div class="questioncontainer">
 
-<span class="pregunta"> Elige una tema:</span> <br><select id="myList" >
-  <option value="data1">Conflicto de intereses con funcionarios del gobierno</option>
-  <option value="data2">Elecciones en corporaciones públicas</option>
-  <option value="data3">Mujeres transgénero en Colombia</option>  
-
-  
-</select>
-<div id="question">
-  <p>¿Debe prohibirse el porte y consumo de dosis personal de drogas ilícitas?</p>
-</div>
-</div> -->
   <div id="comparacion">
-
-    <svg id="comparation">
-     </svg>
+<button id="vista-mapa">Map View</button><button id="vista-leyes">Leyes</button>
+    <svg id="comparation"></svg>
   </div>
+
+
 </div>
 
 </body>
 
 <script>
 
-var forceStrength = 0.08
 var radio = 10
-var svgSize = {width: 0, height: 0}
-var margin = {top: 0, right: 100, bottom: 50, left: 100}
-var simulation 
+var forceStrength = 0.08
+var simulation = d3.forceSimulation()
+
 var datos
+var provincias
+
 var t = d3.transition()
     .duration(3000)
     .ease(d3.easeElastic);
 var clicked = false
 
-d3.json("leyes.json")
-  .then(graph => {
-    datos = graph
+// Svg
+var g
+var svgSize = {width: 0, height: 0}
+var margin = {top: 0, right: 100, bottom: 50, left: 100}
+
+var height = 1800
+svgSize.width = 1200 - margin.left - margin.right
+svgSize.height = height - margin.top - margin.bottom
+var active = d3.select(null)
+
+// X scale
+var xScale = d3.scaleOrdinal()
+  .range([350, 562.5, 775, 987.5])
+  .domain([0, 3, 1, 2]);
+
+// Y scale
+var yScale = d3.scaleOrdinal()
+  .range([200, 400, 600, 800, 1000, 1200 ,1400 , 1600, svgSize.height])
+  .domain(["matrimonio igualitario", "identidad de genero", "regimen empreadas domesticas", "inceminacion arifical", "identidad de genero", "trata personas", "educacion sexual integral", "asignacion universal", "reforma provicional"]);
+
+// Define map projection
+var projection = d3.geoEquirectangular()
+  .center([-65, -55]) // set centre to further North
+  .scale([svgSize.width *1.5]) // scale to fit group width
+  .translate([svgSize.width / 2, svgSize.height / 2]) // ensure centred in group
+
+var geoPath = d3.geoPath()
+  .projection(projection)
+
+
+var zoom = d3.zoom()
+  .on('zoom', zoomed)
+
+d3.json('provincias.geojson')
+  .then(data => {
+    provincias = data
+
+    d3.json("leyes.json")
+      .then(graph => {
+        datos = graph
+
+        datos.forEach(d => {
+          d.nombre = d.nombre.replace(/ /g, '_').replace(/,/g, '_')
+        })
+
+        calculateCenetrs()
+        appendAll()
+        plot()
+        // plotMap()
+      })
+      .catch(error => {
+        console.log(error)
+      })        
+  })
+
+
+function clicked1 (d) {
+  /*
+  On click over the map make a zoom effect
+  */
+  if (active.node() === this) return zoomReset()
+  active.classed('active', false)
+  active = d3.select(this).classed('active', true)
+
+  let bounds = geoPath.bounds(d)
+  let dx = bounds[1][0] - bounds[0][0]
+  let dy = bounds[1][1] - bounds[0][1]
+  let x = (bounds[0][0] + bounds[1][0]) / 2
+  let y = (bounds[0][1] + bounds[1][1]) / 2
+  let scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / svgSize.width, dy / svgSize.height)))
+  let translate = [svgSize.width / 2 - scale * x, svgSize.height / 3.5 - scale * y]
+
+  svg.transition()
+    .duration(750)
+    .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale))
+}  
+
+function zoomReset () {
+  /*
+  Reset the zoom
+  */
+  active.classed('active', false)
+  active = d3.select(null)
+
+  svg.transition()
+    .duration(750)
+    .call(zoom.transform, d3.zoomIdentity) // updated for d3 v4
+}
+
+function zoomed () {
+  /*
+
+  */
+  g.style('stroke-width', 1.5 / d3.event.transform.k + 'px')
+  g.attr('transform', d3.event.transform)
+}
+
+function calculateCenetrs () {
+    /* Centro para las leye */
+    datos.forEach(d => {
+      d.centro1 = {
+        x: xScale(d.voto),
+        y: yScale(d.asunto)
+      }
+    })
+
+    /* Centro para el mapa */
+    datos.forEach(d => {
+      if (d.distrito === 'Ciudad Autónoma de Buenos Aires') {
+        centroide = projection([-48, -38])
+      } else {
+        var centroide = provincias.features.filter(dd => {
+        return dd.properties.provincia === d.distrito
+      })[0]['properties']['centroid']
+        centroide = projection(centroide)
+      }
+
+      d.centro2 = {
+        x: centroide[0],
+        y: centroide[1]
+      }
+    })
 
     datos.forEach(d => {
       d.radio = radio
-      d.nombre = d.nombre.replace(/ /g, '_').replace(/,/g, '_')
     })
 
-    plot()
-  })
-  .catch(error => {
-    console.log(error)
-  })
+    /* radios para el mapa */
+    var nombres = []
+    datos.forEach(d =>  {
+      nombres.push(d.nombre)
+    })
+
+    nombres = [ ...new Set(nombres)]
+
+    nombres.forEach(d => {
+      var nodosIguales1 = datos.filter(dd => { return d == dd.nombre})
+
+      nodosIguales1.forEach((d, i) => {
+        if (i === 0) {
+          d.radio2= 10
+        } else {
+          d.radio2 = 0
+        }
+      })
+    })
+
+
+// var nodosIguales1 = datos.filter(dd => { return d.nombre == dd.nombre})
+        
 
 
 
-
-
-
-
-
-
-
+}
 
   // console.log(graph)
     // SVG size
     // svgSize.width = document.getElementById('comparation').clientWidth - margin.left - margin.right
     // svgSize.height = height - margin.top - margin.bottom
 
-var height = 1800
-
-    svgSize.width = 1200 - margin.left - margin.right
-    svgSize.height = height - margin.top - margin.bottom
 
 
-var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
-  .html(function(d) {
-    return "<strong>Frequency:</strong> <span style='color:red'>" + d.answer + "</span>";
-  })
+// var tip = d3.tip()
+//   .attr('class', 'd3-tip')
+//   .offset([-10, 0])
+//   .html(function(d) {
+//     return "<strong>Frequency:</strong> <span style='color:red'>" + d.answer + "</span>";
+//   })
+
+
+
+
+
+
+// svg.call(tip);
+function appendAll(){
+
 
 
     // Append the svg
-   svg = d3.select('#comparation')
+svg = d3.select('#comparation')
       .attr('width', 1200)
       .attr('height', height)
-      .append('g')
+
+ g = svg.append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
-
-
-
-
-
-svg.call(tip);
-
-// svg.selectAll('image').on ('click', function (d){
-//     clicked = true
-//      console.log('what')
-//      console.log(clicked)
-//      console.log(images)
-//    })
-
-// svg.on( 'click', function (d) {
-// var images = d3.selectAll('image')
-    
-
-//     if (d == 3){
-//       d3.select(this)
-//   console.log('spam')
-//  clicked = false
-//  console.log(clicked)
-//   console.log(images)
-//   }
-
-//     else{
-
-//     clicked = true
-//      console.log('what')
-//      console.log(clicked)
-//      console.log(images)
-//     }
-
-
-// })
-
-
-function plot () {
-
 
 
 function color(bloque) {
@@ -370,65 +410,65 @@ function imgNode(nombre) {
 }
 
 
+let gg = g.append('g') 
+  
+        gg.selectAll('path')
+           .data(provincias.features)
+          .enter()
+          .append('path')
+          .attr('class', 'map')
+          .attr('d', geoPath)
+          .on('click', clicked1)
 
 
 
-    // X scale
-    var x = d3.scaleOrdinal()
-      .range([350, 562.5, 775, 987.5])
-      .domain([0, 3, 1, 2]);
 
 
-    // Y scale
-    var y = d3.scaleOrdinal()
-      
-      .range([200, 400, 600, 800, 1000, 1200 ,1400 , 1600, svgSize.height])
-      .domain(["matrimonio igualitario", "identidad de genero", "regimen empreadas domesticas", "inceminacion arifical", "identidad de genero", "trata personas", "educacion sexual integral", "asignacion universal", "reforma provicional"]);
-
-    // Init the simulation
-    simulation = d3.forceSimulation()
-      // .velocityDecay(0.5)
-      // .gravity(0)
-      .force('x', d3.forceX().strength(forceStrength).x((d) => { return x(d.voto) }))
-      .force('y', d3.forceY().strength(forceStrength).y((d) => { console.log(d.asunto, y(d.asunto)); return y(d.asunto) }))
-      .force('collide', d3.forceCollide().radius((d) => { 
-       return d.radio === radio ? d.radio : d.radio * 1.5  }))
- 
-
-
-    // Add a g to for each node
-    node = svg.selectAll('.node')
+     // Add a g to for each node
+    node = g.selectAll('.node')
       .data(datos)
       .enter().append('g')
       .attr('class', 'node')
       
-
-    // Append a circle
     node.append('circle')
-      .attr('r', radio)
-      // .style('fill', '#eee')
       .attr("fill", function(d) { return color(d.bloque); })
       .style("stroke", function(d) { return colorStroke(d.bloque); })
-      
 
-
-        // Append the photos
     node.append('image')
       .attr('xlink:href', (d) => { return imgNode(d.nombre); })
       .attr('id', d => { return d.nombre })
+}
+
+
+
+function plot () {
+
+
+simulation.nodes(datos).alphaTarget(1).restart()
+      .force('x', d3.forceX().strength(forceStrength).x((d) => { return d.centro1.x}))
+      .force('y', d3.forceY().strength(forceStrength).y((d) => { return d.centro1.y }))
+      .force('collide', d3.forceCollide().radius((d) => { 
+       return d.radio === radio ? d.radio : d.radio * 1.5  }))
+ 
+ // Add a g to for each node
+    node = g.selectAll('.node')
+
+// Append a circle
+  node.selectAll('circle')
+    .attr('r', radio)
+
+// Append the photos
+    node.selectAll('image')
       .attr('x', d => { return -d.radio })
       .attr('y', d => { return -d.radio })
       .attr('width', d => { return d.radio*2 })
       .attr('height', d => { return d.radio*2 })
-
-          .on( 'mouseover', function (d) {
-if (clicked === false){
+      .on( 'mouseover', function (d) {
+        if (clicked === false){
             d.radio = 20
             simulation.nodes(datos).alphaTarget(0.08).restart()
             // select element in current context
-              d3.select(this)
-             
-
+            d3.select(this)
               .transition(t)
               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
               .attr("x", function(d) { return -30;})
@@ -436,30 +476,24 @@ if (clicked === false){
               .attr("height", 50)
               .attr("width", 50);
               }
-else{
-
-  
-}
-
+              else{}
 })
-
-.on( 'click', function (d) {
+        .on( 'click', function (d) {
             // d.radio = 30
 
 var nodosIguales = datos.filter(dd => { return d.nombre == dd.nombre})
 
-if (clicked === false){
+    if (clicked === false){
 
-            nodosIguales.forEach(dd => {
-              dd.radio = 30
-                  
-            })
+    nodosIguales.forEach(dd => {
+      dd.radio = 30
+          })
 
-            simulation.nodes(datos).alphaTarget(0.08).restart()
+      //simulation.nodes(datos).alphaTarget(0.08).restart()
 
-            // select element in current context
+ // select element in current context
            
-            d3.selectAll('#' + d.nombre)
+      d3.selectAll('#' + d.nombre)
               .transition(t)
               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
               .attr("x", function(d) { return -30;})
@@ -469,93 +503,70 @@ if (clicked === false){
             // set click as true
             clicked = true}
 
-else{
+            else{
             nodosIguales.forEach(dd => {
-              dd.radio = radio
-                  
-            })
+              dd.radio = radio })
            
             simulation.nodes(datos).alphaTarget(0.1).restart()
             d3.selectAll('#' + d.nombre)
               .transition()
-      .attr('x', d => { return -d.radio })
-      .attr('y', d => { return -d.radio })
-      .attr('width', d => { return d.radio*2 })
-      .attr('height', d => { return d.radio*2 })
-       // set click as false
-            clicked = false
-}
-           
-            
-        
-})
-
-
-
-
-
+              .attr('x', d => { return -d.radio })
+              .attr('y', d => { return -d.radio })
+              .attr('width', d => { return d.radio*2 })
+              .attr('height', d => { return d.radio*2 })
+               // set click as false
+                    clicked = false}
+        })
 
           // set back
           .on( 'mouseleave', function(d) {
 
-if (clicked === false){
+            if (clicked === false){
             d.radio = radio
             simulation.nodes(datos).alphaTarget(0.1).restart()
             d3.select( this )
               .transition()
-      .attr('x', d => { return -d.radio })
-      .attr('y', d => { return -d.radio })
-      .attr('width', d => { return d.radio*2 })
-      .attr('height', d => { return d.radio*2 })
-      
-          } 
-  else{
- 
-
-  }
-
-
-          });
-
-
-
-
-
-
+              .attr('x', d => { return -d.radio })
+              .attr('y', d => { return -d.radio })
+              .attr('width', d => { return d.radio*2 })
+              .attr('height', d => { return d.radio*2 })
+            } 
+            else{}
+        });
 
 
     // Append the x axis
-    svg.append('g')
+    g.append('g')
       .attr('class', 'axis')
       .attr('transform', 'translate(0,75)')
-      .call(d3.axisBottom(x))
+      .call(d3.axisBottom(xScale))
       .select('.domain')
       .remove()
 
 
     // Append the y axis
-    svg.append('g')
+    g.append('g')
       .attr('class', 'axis')
       .attr('transform', 'translate(200, 0)')
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(yScale))
       .select('.domain')
       .remove()
 
-    svg.selectAll('.axis .tick line')
+    g.selectAll('.axis .tick line')
       .remove()
 
-    svg.selectAll('.axis .tick text')
+    g.selectAll('.axis .tick text')
       .attr('y', 0)
       .attr('dy', 0)
       .text((d) => { return d })
 
+d3.selectAll('.map')
+.attr('opacity', '0')
+      
+d3.selectAll('#comparation')
+.attr('background', 'linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%)')
 
-
-
-
-// ' + svgSize.width + '
-
-    simulation
+simulation
       .nodes(datos)
       .on('tick', ticked)
       // .force("charge", d3.forceManyBody().strength(-radio/2))
@@ -564,11 +575,79 @@ if (clicked === false){
     //})
 }
 
+function plotMap()
+{
+g.selectAll('.axis .tick text')
+.transition()
+.remove()
+
+
+  // provincias.features.forEach(d => {
+  //   let centroide = d.properties.centroid
+  //   console.log(projection(centroide)[0], projection(d.properties.centroid)[1] )
+  //   let provincia = d.properties.provincia
+  //     console.log(provincia)
+
+  // })
+
+simulation.nodes(datos).alphaTarget(1).restart()
+      // .attr('r', radio*2)
+      // .velocityDecay(0.5)
+      // .gravity(0)
+      .force('x', d3.forceX().strength(forceStrength).x((d) => { return d.centro2.x}))
+      .force('y', d3.forceY().strength(forceStrength).y((d) => { return d.centro2.y }))
+      .force('collide', d3.forceCollide().radius((d) => { 
+       return d.radio2 === radio ? d.radio2 : d.radio2 * 1.5  }))
+
+
+
+    node = g.selectAll('.node')
+      .data(datos)
+
+    node.selectAll('circle')
+      .attr('r', d => { return d.radio2 })
+
+
+
+d3.selectAll('.map')
+.transition()
+.duration(3000)
+.attr('opacity', '.25')
+
+        // Append the photos
+    node.selectAll('image')
+      .transition()
+      .duration(3000)
+      .attr('id', d => { return d.nombre })
+      .attr('x', d => { return -d.radio2 })
+      .attr('y', d => { return -d.radio2 })
+      .attr('width', d => { return d.radio2*2 })
+      .attr('height', d => { return d.radio2*2 })
+      .on('click', d => {})
 
 
 
 
-    function ticked () {
+
+
+
+
+// d3.selectAll('#comparacion')
+// .attr('background', 'transparent')
+
+      // var svg2 = d3.select('#comparation')
+      // .attr('width', 1200)
+      // .attr('height', height)
+
+
+
+ simulation
+      .nodes(datos)
+      .on('tick', ticked)
+
+}
+
+function ticked () {
 
 var t = d3.transition()
     .duration(3000)
@@ -583,89 +662,16 @@ var t = d3.transition()
 
 
     }
+d3.select('#vista-leyes').on('click', function(d) {
 
-// function mouseover (d){
-//   .nodes(datos)
-//   .force("charge", d3.forceManyBody().strength(-radio))
-// }
+  plot()
+})
 
+d3.select('#vista-mapa').on('click', function(d) {
 
-    // function mouseover (d) {
-    //   /*
-    //     On mouse over highlight the rect and show the tooltip
-    //   */
-    //   // Update the tooltip position and value
-    //   d3.select('#tooltip')
-    //     .style('left', (d3.event.pageX - 125) + 'px')
-    //     .style('top', (d3.event.pageY + 20) + 'px')
-    //     .select('#value')
-    //     .html(() => {
-    //       if ($route.params.name === d.name) {
-    //         return '<strong>' + d.name.replace(/-/, ' ') + '</strong>'
-    //       } else {
-    //         return '<strong>' + d.name.replace(/-/g, ' ') + '</strong><br /> tiene un <strong>' +
-    //                d.similarity.toFixed(2) + '%</strong> de similitud de respuestas con <strong>' +
-    //                $route.params.name.replace(/-/, ' ') + '</strong>'
-    //       }
-    //     })
+  plotMap()
+})
 
-    //   // Show the tooltip
-    //   d3.select('#tooltip').classed('hidden', false)
-    // }
-
-    // function mouseout (d) {
-    //   /*
-    //     On mouse out, remove the highlight
-    //   */
-    //   d3.select('#tooltip').classed('hidden', true)
-    // }
-
-// function update(newData) {
-
-// graph = newData
-// node = node.data(datos)
-
-// simulation.nodes(datos)
-//     .alphaTarget(1).restart()
-//     // .force("charge", d3.forceManyBody().strength(-300))
-//     // .force("center", d3.forceCenter(width, height));
-    
-    
-//   }
-
-
-// document.getElementById("myList").onchange = function() {
-//    var dataOption = document.getElementById("myList").value;
-//    var qDiv = document.getElementById("question");
-
-//    if(dataOption=="data1"){
-   
-//    return update(data1), qDiv.innerHTML = "<p>¿Debe ser obligatorio que todos los altos funcionarios del gobierno publiquen su declaración de renta y conflicto de intereses al ingresar al cargo y al salir de este?</p>";;
-
-   
-//    }
-//    else if(dataOption=="data2"){
-//    return update(data2), qDiv.innerHTML = "<p>¿Deben desmontarse las listas abiertas e implementarse las listas cerradas para elecciones en corporaciones públicas?</p>";
-  
-//    }
-//    else if(dataOption=="data3"){
-//    return update(data3), qDiv.innerHTML = "<p>La expectativa de vida de las mujeres transgénero en Colombia es de 35 años, ¿debe darse atención prioritaria a éstas ciudadanas?</p>";
-   
-   
-//    }
-
-// };
-
-
-
-    
-      
-
-
-
-
-
-// d3.selectAll("p").transition().style("font-size","24px").duration(10000);
 
 
 </script>
