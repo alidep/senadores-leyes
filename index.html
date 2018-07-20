@@ -5,45 +5,97 @@
   
 
 body{
-  background-color: #292935;
+  background-color: #fff;
 }
+
+#thing
+{width: 1200x;
+margin: 0 auto;}
 .axis {
   font: 12px sans-serif;
 }
 
 .map {
-    fill: #eee;
+    fill: #cecece;
     stroke: #fff;
     stroke-width: 2;
-    /*opacity: .25;*/
+   
 }
 
 
 text {
-  fill: white;
-  font-size: 12px;
+  fill: black;
+  font-size: 8px;
   text-align: center;
  font-family: 'Inconsolata', monospace;
+ 
  text-transform: uppercase;
+
 
 }
 
 h2{
-  color: white;
+  color: black;
   font-size: 36px;
   text-align: center;
   font-family: 'Hind', sans-serif;
+margin: 0;
 
 }
 
 p{
-  color: white;
+  color: black;
   font-size: 18px;
   text-align: center;
- font-family: 'Chivo', sans-serif;
+ font-family: 'Inconsolata', monospace;
   text-align: center;
 
+
 }
+
+.btns{
+    width: 260px;
+     margin: 0 auto;
+     display: block;
+     padding-top: 20px;
+     padding-bottom: 20px;
+}
+
+button{
+     font-family: 'Inconsolata', monospace;
+    border-color: #AAA;
+    box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);  
+    color: #999;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 15px;
+    border-top: solid 1px #CCC;
+    border-bottom: solid 1px #CCC;
+    border-left: solid 1px #CCC;
+    background: #f9f9f9;
+   width: 130px;
+    outline: none;
+
+
+
+}
+
+button#vista-mapa{
+  
+    border-radius: 0px 4px 4px 0px;
+}
+
+button#vista-leyes{
+   border-radius: 4px 0 0 4px;
+}
+button:hover{
+    color: #000;
+    background: #e9e9e9;
+    border-color: #AAA;
+    box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+
+
 
 /*.d3-tip {
   line-height: 1;
@@ -67,12 +119,6 @@ p{
   text-align: center;
 }*/
 
-#comparacion
-{
-  
-  width: 1200px;
-  float: left;
-}
 
 @media (min-width: 768px) {
   text {
@@ -81,13 +127,19 @@ p{
 }
 
 
+
 #comparacion
 {
 width: 1200px;
-margin: auto;
 
-/*background:linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%);*/
+display: block;
+margin: 0 auto;
+
+/*background:linear-gradient(to right, #ffffff 29%, #c8fcb6 29%, #c8fcb6 47%, #fc9a9f 47%, #fc9a9f 65%, #f9e9aa 65%, #f9e9aa 83%, #d1d1d1 83%);*/
 }
+
+/*background:linear-gradient(to right, #ffffff 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%);
+}*/
 
 div.graph-text {
   position: absolute;
@@ -110,24 +162,24 @@ g > circle {
 
 </style>
 
-<link href="https://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata:400,700" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Hind:400,700" rel="stylesheet">
 
   <script src='https://d3js.org/d3.v5.min.js'></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js"></script>
 
-
-
 </head>
+
+
 <body>
   <div id="thing">
-<!--   <h2>Como votaron los senadores </h2> -->
-</br>
-</br>
+  <h2>Como votaron los senadores </h2>
+<p>Exploramos como votaron los senadores argentinos en diferentes leyes importantes desde 2012 hasta 2018.</p><div class="btns">
+<button id="vista-leyes">Por Persona</button><button id="vista-mapa">Por Provincia</button></div>
 
   <div id="comparacion">
-<button id="vista-mapa">Map View</button><button id="vista-leyes">Leyes</button>
-    <svg id="comparation"></svg>
+    <svg id="comparation">
+    </svg>
   </div>
 
 
@@ -167,11 +219,11 @@ var xScale = d3.scaleOrdinal()
 // Y scale
 var yScale = d3.scaleOrdinal()
   .range([200, 400, 600, 800, 1000, 1200 ,1400 , 1600, svgSize.height])
-  .domain(["matrimonio igualitario", "identidad de genero", "regimen empreadas domesticas", "inceminacion arifical", "identidad de genero", "trata personas", "educacion sexual integral", "asignacion universal", "reforma provicional"]);
+  .domain(["matrimonio igualitario", "identidad de genero", "regimen empreadas domesticas", "inceminacion arifical", "trata personas", "educacion sexual integral", "asignacion universal", "reforma provicional"]);
 
 // Define map projection
 var projection = d3.geoEquirectangular()
-  .center([-65, -55]) // set centre to further North
+  .center([-63, -54]) // set centre to further North
   .scale([svgSize.width *1.5]) // scale to fit group width
   .translate([svgSize.width / 2, svgSize.height / 2]) // ensure centred in group
 
@@ -244,6 +296,11 @@ function zoomed () {
   */
   g.style('stroke-width', 1.5 / d3.event.transform.k + 'px')
   g.attr('transform', d3.event.transform)
+
+
+      node.selectAll('image')
+ .on('mouseover', d => {})
+  .on('click', d => {})
 }
 
 function calculateCenetrs () {
@@ -258,7 +315,7 @@ function calculateCenetrs () {
     /* Centro para el mapa */
     datos.forEach(d => {
       if (d.distrito === 'Ciudad Autónoma de Buenos Aires') {
-        centroide = projection([-48, -38])
+        centroide = projection([-53, -38])
       } else {
         var centroide = provincias.features.filter(dd => {
         return dd.properties.provincia === d.distrito
@@ -332,9 +389,11 @@ function appendAll(){
 svg = d3.select('#comparation')
       .attr('width', 1200)
       .attr('height', height)
+      
 
  g = svg.append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
 
 
 function color(bloque) {
@@ -410,6 +469,9 @@ function imgNode(nombre) {
 }
 
 
+
+
+
 let gg = g.append('g') 
   
         gg.selectAll('path')
@@ -465,16 +527,16 @@ simulation.nodes(datos).alphaTarget(1).restart()
       .attr('height', d => { return d.radio*2 })
       .on( 'mouseover', function (d) {
         if (clicked === false){
-            d.radio = 20
+            d.radio = 30
             simulation.nodes(datos).alphaTarget(0.08).restart()
             // select element in current context
             d3.select(this)
               .transition(t)
               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
-              .attr("x", function(d) { return -30;})
-              .attr("y", function(d) { return -30;})
-              .attr("height", 50)
-              .attr("width", 50);
+              .attr("x", function(d) { return -60;})
+              .attr("y", function(d) { return -60;})
+              .attr("height", 100)
+              .attr("width", 100);
               }
               else{}
 })
@@ -496,10 +558,10 @@ var nodosIguales = datos.filter(dd => { return d.nombre == dd.nombre})
       d3.selectAll('#' + d.nombre)
               .transition(t)
               // .attr('xlink:href', (d) => { return imgNode(d.nombre); })
-              .attr("x", function(d) { return -30;})
-              .attr("y", function(d) { return -30;})
-              .attr("height", 75)
-              .attr("width", 75);
+              .attr("x", function(d) { return -60;})
+              .attr("y", function(d) { return -60;})
+              .attr("height", 100)
+              .attr("width", 100);
             // set click as true
             clicked = true}
 
@@ -534,37 +596,62 @@ var nodosIguales = datos.filter(dd => { return d.nombre == dd.nombre})
             else{}
         });
 
+// function xAxis(voto) {
+//   return voto == 0 ? 'YES' : 
+//     voto == 1 ? '2.png' : 
+//     voto == 2 ? '3.png' : 
+//     voto == 3 ? '5.png' : '6.png';
+   
+   
+// }
+
+var xAxis = d3.axisBottom(xScale)
+.tickValues(["A FAVOR", "EN CONTRA", "SE ABSTIENE", "EN AUSCENCIA"]);
+
+
+var yAxis = d3.axisLeft(yScale)
+ // .tickValues(["Matrimonio Igualitario", "Identidad de Genero", "Regimen Empreadas Domesticas", "Inceminacion Arifical", "Trata Personas", "Educacion Sexual Integral", "Asignacion Universal", "Reforma Provicional"]);
+
 
     // Append the x axis
     g.append('g')
       .attr('class', 'axis')
-      .attr('transform', 'translate(0,75)')
-      .call(d3.axisBottom(xScale))
+      .attr('transform', 'translate(0,25)')
+      .call(xAxis)
       .select('.domain')
       .remove()
+      
+
+
+     
+// d3.axisBottom(xScale)
+// .text((d) => { return xAxis(d.voto)})
+
 
 
     // Append the y axis
     g.append('g')
       .attr('class', 'axis')
       .attr('transform', 'translate(200, 0)')
-      .call(d3.axisLeft(yScale))
+      .call(yAxis)
       .select('.domain')
       .remove()
 
     g.selectAll('.axis .tick line')
       .remove()
 
-    g.selectAll('.axis .tick text')
-      .attr('y', 0)
-      .attr('dy', 0)
-      .text((d) => { return d })
+    // g.selectAll('.axis .tick text')
+    //   .attr('x', 0)
+    //   .attr('dx', 0)
+      
+      
+
 
 d3.selectAll('.map')
 .attr('opacity', '0')
       
-d3.selectAll('#comparation')
-.attr('background', 'linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%)')
+// d3.selectAll('#comparacion')
+// .attr('background', 'linear-gradient(to right, #292935 29%, #435945 29%, #435945 47%, #572f34 47%, #572f34 65%, #534a32 65%, #534a32 83%, #454650 83%)')
 
 simulation
       .nodes(datos)
@@ -612,12 +699,13 @@ simulation.nodes(datos).alphaTarget(1).restart()
 d3.selectAll('.map')
 .transition()
 .duration(3000)
-.attr('opacity', '.25')
+.attr('opacity', '1')
 
         // Append the photos
     node.selectAll('image')
       .transition()
-      .duration(3000)
+      .duration(1000)
+      .ease(d3.easeElastic)
       .attr('id', d => { return d.nombre })
       .attr('x', d => { return -d.radio2 })
       .attr('y', d => { return -d.radio2 })
@@ -627,13 +715,6 @@ d3.selectAll('.map')
 
 
 
-
-
-
-
-
-// d3.selectAll('#comparacion')
-// .attr('background', 'transparent')
 
       // var svg2 = d3.select('#comparation')
       // .attr('width', 1200)
@@ -646,6 +727,9 @@ d3.selectAll('.map')
       .on('tick', ticked)
 
 }
+
+
+
 
 function ticked () {
 
@@ -665,11 +749,13 @@ var t = d3.transition()
 d3.select('#vista-leyes').on('click', function(d) {
 
   plot()
+  
 })
 
 d3.select('#vista-mapa').on('click', function(d) {
 
   plotMap()
+ 
 })
 
 
