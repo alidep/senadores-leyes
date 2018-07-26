@@ -156,8 +156,7 @@ function calculateCenetrs () {
  datos.forEach(d => {
   if(d.nombre === "leguizamón_maría_laura" || 
      d.nombre === "terragno_rodolfo" || 
-     d.nombre ==="pampuro_josé_juan_bautista"
-     d.nombre === "gonzalez_de_duhalde_hilda_beatriz" || 
+     d.nombre ==="pampuro_josé_juan_bautista" ||
      d.nombre === "fernandez_de_kirchner_cristina" || 
      d.nombre === "colombo_de_acevedo_maría_teresa" || 
      d.nombre === "saadi_ramón_eduardo" || 
