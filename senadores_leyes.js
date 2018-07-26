@@ -353,6 +353,9 @@ function plot () {
   node.selectAll('circle')
     .attr('r', radio1)
 
+    
+
+
   // Append the photos
   node.selectAll('image')
     .attr('x', d => { return -d.radio })
@@ -394,7 +397,7 @@ function plotActuales(){
   node.selectAll('image')
     .on('click', d => {})
     .transition()
-    .duration(1000)
+    .duration(3000)
     .ease(d3.easeElastic)
     .attr('width', d => { return d.radio3 * 2 })
     .attr('height', d => { return d.radio3 * 2 })
@@ -419,6 +422,7 @@ function plotMap () {
     .transition()
     .duration(3000)
     .attr('opacity', '1')
+
 
   simulation.nodes(datos).alphaTarget(1).restart()
     .force('x', d3.forceX().strength(forceStrength).x(d => { return d.centro2.x }))
@@ -688,7 +692,8 @@ function mouseover (d) {
    .select('#value')
    .html(() => {
      return '<strong>Nombre:</strong> ' + d.nombre.replace(/_/g, ' ') +
-            '<br /><strong>Bloque:</strong> ' + d.bloque
+            '<br /><strong>Bloque:</strong> ' + d.bloque +
+            '<br /><strong>Distrito:</strong> ' + d.distrito
    })
 
  // Show the tooltip
@@ -706,12 +711,15 @@ function mouseout (d) {
 
 d3.select('#vista-leyes').on('click', d => {
   plot()
+
 })
 
 d3.select('#vista-actuales').on('click', d => {
   plotActuales()
+
 })
 
 d3.select('#vista-mapa').on('click', d => {
   plotMap()
+
 })
